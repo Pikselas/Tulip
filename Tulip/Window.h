@@ -3,80 +3,11 @@
 #include<sstream>
 #include<bitset>
 #include<functional>
-#include<source_location>
-#include"WindowComponent.h"
+#include<atomic>
 
 class Window
 {
-	private:
-		class WindowClass
-		{
-		 private:
-			constexpr static const char* classNm = "PikselasWindowClass";
-			WindowClass();
-			~WindowClass();
-			static WindowClass wndcls;
-			HINSTANCE hinst;
-		 public:
-			 constexpr static const char* GetName();
-			 static HINSTANCE GetInstance();
-		};
 	public:
-		class Mouse
-		{
-		friend Window;
-		private:
-			int x = -1;
-			int y = -1;
-			int wheelDelta = 0;
-		private:
-			bool LeftPressed = false;
-			bool RightPressed = false;
-		public:
-			bool IsLeftPressed() const;
-			bool IsRightPressed() const;
-			int  GetWheelDelta() const;
-			int GetX() const;
-			int GetY() const;
-			std::pair<int, int> GetXY() const;
-			void Reset();
-		public:
-			using EventHandlerType = std::function<void(Window&)>;
-			EventHandlerType OnMove				= nullptr;
-			EventHandlerType OnWheel			= nullptr;
-			EventHandlerType OnLeftPress		= nullptr;
-			EventHandlerType OnRightPress		= nullptr;
-			EventHandlerType OnLeftRelease		= nullptr;
-			EventHandlerType OnRightRelease		= nullptr;
-			EventHandlerType OnLeftDoubleClick	= nullptr;
-			EventHandlerType OnRightDoubleClick = nullptr;
-		};
-		class KeyBoard
-		{
-			friend Window;
-		private:
-			std::bitset<256> KEY_STAT;
-			bool REPEAT_ENABLED = false;
-		public:
-			bool IsKeyDown(unsigned char keycode) const;
-			bool IsRepeatEnabled() const;
-			void EnableKeyRepeat();
-			void DisableKeyRepeat();
-			void Reset();
-		public:
-			struct EventT
-			{
-				Window& window;
-				unsigned char KEY_CODE;
-				bool IS_REPEATED;
-				EventT(Window& wnd, unsigned char code, bool repeat);
-			};
-		public:
-			using EventHandlerType = std::function<void(EventT)>;
-			EventHandlerType OnKeyPress		= nullptr;
-			EventHandlerType OnKeyRelease	= nullptr;
-			EventHandlerType OnCharInput	= nullptr;
-		};
 		class Exception
 		{
 		private:
@@ -85,47 +16,39 @@ class Window
 			std::string file;
 			unsigned int line;
 		public:
-			Exception(HRESULT hr , std::source_location s = std::source_location::current());
+			Exception(HRESULT hr);
 			std::string GetReason() const;
 			unsigned int GetLine() const;
 			std::string GetFile() const;
 			HRESULT GetErrorCode() const;
 		};
 	private:
-		std::string name;
 		unsigned int height;
 		unsigned int width;
-		bool Closed = false;
-		static int WindowCount;
 	public:
 		HWND window_handle;
-	private:
-		static LRESULT StaticMessageHandler(HWND handle , UINT msgcode , WPARAM wparam ,LPARAM lparam);
-		LRESULT MessageHandler(HWND handle, UINT msgcode, WPARAM wparam, LPARAM lparam);
 	public:
-		Mouse mouse;
-		KeyBoard keyboard;
-	public:
-		Window(const std::string& name = "Window", int width = 800, int height = 600);
+		Window(Window * Parent, DWORD exStyle, const std::string& window_class ,const std::string& title, DWORD Style, int x, int y, int width, int height);
 		~Window();
+	public:
 		unsigned int GetHeight() const;
 		unsigned int GetWidth() const;
-		bool IsOpen() const;
 		void Redraw() const;
 		void Update() const;
-		void ChangeTitle(const std::string& title);
+		void SetPosition(int x , int y) const;
+		void ChangeTitle(const std::string& title) const;
+		void SetFocus() const;
 	public:
-		using EventHandler = void(&)(const HWND);
-		void ProcessEvents(EventHandler e = ProcessWindowEvents) const;
+		void ResizeWindow(unsigned int width, unsigned int height);
 	public:
-		constexpr static Window* ALL_WINDOWS = nullptr;
+		using EventDispatcher = void (&)(const HWND);
+		void ProcessEvents(EventDispatcher e = DispatchWindowEvents) const;
 	public:
-		void* UserSideDataPointer = nullptr;
+		Window(const Window&) = delete;
+		Window& operator=(const Window&) = delete;
 	public:
-		static void MainLoop(const Window* const window, EventHandler e = ProcessWindowEvents);
-		static void ProcessWindowEvents(const HWND handle = nullptr);
-		static void ProcessWindowEventsNonBlocking(const HWND handle = nullptr);
-		static int GetWindowCount();
+		static void DispatchWindowEvents(const HWND handle = nullptr);
+		static void DispatchWindowEventsNonBlocking(const HWND handle = nullptr);
 };
 
 #define THROW_IF_FAILED(hrcall) if(HRESULT hrcode = hrcall ; FAILED(hrcode)) throw Window::Exception(hrcode)

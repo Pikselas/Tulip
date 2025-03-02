@@ -139,6 +139,7 @@
     <ClInclude Include="CanvasComponent.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="CustomWindow.h" />
     <ClInclude Include="DropDownSelect.h" />
     <ClInclude Include="GDIPlusManager.h" />
     <ClInclude Include="Image.h" />
@@ -150,6 +151,7 @@
     <ClInclude Include="PixelShader.h" />
     <ClInclude Include="Pyramid.h" />
     <ClInclude Include="RangeButton.h" />
+    <ClInclude Include="StandardWindow.h" />
     <ClInclude Include="TargetMemory.h" />
     <ClInclude Include="Target.h" />
     <ClInclude Include="TargetWindow.h" />
@@ -163,10 +165,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Canvas3D.cpp" />
+    <ClCompile Include="CustomWindow.cpp" />
     <ClCompile Include="GDIPlusManager.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="KokodaiManager.cpp" />
+    <ClCompile Include="StandardWindow.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>

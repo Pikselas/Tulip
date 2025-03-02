@@ -153,8 +153,8 @@ void KokodaiManager::Run(std::span<Object> objects)
 		mtx.unlock();
 		if (OnUpdate)
 			OnUpdate();
-		mainWindow.Redraw();
-		Window::ProcessWindowEventsNonBlocking();
+		//mainWindow.Redraw();
+		CustomWindow::DispatchWindowEventsNonBlocking();
 	}
 }
 
@@ -163,7 +163,7 @@ Canvas3D& KokodaiManager::GetCanvas()
 	return mainCanvas;
 }
 
-Window& KokodaiManager::GetWindow()
+StandardWindow& KokodaiManager::GetWindow()
 {
 	return mainWindow;
 }

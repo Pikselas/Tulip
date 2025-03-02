@@ -8,7 +8,7 @@ public:
 private:
 	std::string current_selection;
 public:
-	DropDownSelect(Window& wnd, int x, int y, int width, int height) 
+	DropDownSelect(WindowT auto& wnd, int x, int y, int width, int height)
 		:
 	WindowComponent(wnd,WC_COMBOBOX,0, CBS_DISABLENOSCROLL | CBS_DROPDOWN | CBS_HASSTRINGS | WS_CHILD | WS_VISIBLE,"Com", x, y, width, height , this)
 	{

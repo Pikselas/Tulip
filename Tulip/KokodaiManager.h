@@ -1,6 +1,6 @@
 #pragma once
 #include"Label.h"
-#include"Window.h"
+#include"StandardWindow.h"
 #include"Canvas3D.h"
 #include"TextEntry.h"
 #include"TextButton.h"
@@ -12,10 +12,10 @@
 class KokodaiManager
 {
 private:
-	Window mainWindow;
+	StandardWindow mainWindow;
 	Canvas3D mainCanvas;
 private:
-	Window uiWindow;
+	StandardWindow uiWindow;
 private:
 	Label rotXLabel;
 	Label rotYLabel;
@@ -55,5 +55,5 @@ public:
 public:
 	void Run(std::span<Object> objects);
 	Canvas3D& GetCanvas();
-	Window& GetWindow();
+	StandardWindow& GetWindow();
 };

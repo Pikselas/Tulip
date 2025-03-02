@@ -3,14 +3,14 @@
 #include<CommCtrl.h>
 #include<functional>
 
-class Window;
+class CustomWindow;
 
 template<typename T>
-concept WindowT = std::is_same_v<T, Window>;
+concept WindowT = std::is_base_of_v<CustomWindow , T>;
 
 class WindowComponent
 {
-	friend Window;
+	friend CustomWindow;
 protected:
 	HWND component_handle;
 protected:
