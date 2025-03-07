@@ -3,10 +3,10 @@
 KokodaiManager::KokodaiManager()
 	:
 mainWindow("Kokodai"),
-mainCanvas(mainWindow),
+render_target(mainCanvas.Device.Get(), mainWindow.window_handle, 800, 600),
 
 uiWindow("Kokodai - control panel", 400, 400),
-
+depth_buffer(mainCanvas.Device.Get(), 800, 600),
 rotXLabel(uiWindow, "rot-X", 10, 10, 30, 20),
 rotYLabel(uiWindow, "rot-Y", 10, 40, 30, 20),
 camXLabel(uiWindow, "X", 15, 70, 15, 20),
@@ -130,6 +130,9 @@ primitive(uiWindow, 80, 190, 100, 100)
 void KokodaiManager::Run(std::span<Object> objects)
 {
 	auto time_point = std::chrono::system_clock::now();
+	mainCanvas.SetRenderTarget(render_target);
+	depth_buffer.Bind(mainCanvas.ImmediateContext.Get());
+
 	while (mainWindow.IsOpen() && uiWindow.IsOpen())
 	{
 		const auto now = std::chrono::system_clock::now();
@@ -140,7 +143,9 @@ void KokodaiManager::Run(std::span<Object> objects)
 		
 
 		mtx.lock();
-		mainCanvas.ClearCanvas();
+		render_target.Clear();
+		//mainCanvas.ClearCanvas();
+		depth_buffer.Clear(mainCanvas.ImmediateContext.Get());
 		for (auto& obj : objects)
 		{
 			if (obj.OnUpdate)
@@ -149,7 +154,8 @@ void KokodaiManager::Run(std::span<Object> objects)
 			}
 			mainCanvas.DrawObject(obj);
 		}
-		mainCanvas.PresentOnWindow();
+		//mainCanvas.PresentOnWindow();
+		render_target.RenderFrame();
 		mtx.unlock();
 		if (OnUpdate)
 			OnUpdate();

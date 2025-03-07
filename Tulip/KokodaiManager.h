@@ -7,6 +7,8 @@
 #include"RangeButton.h"
 #include"DropDownSelect.h"
 
+#include"TargetWindow.h"
+#include"DepthBuffer.h"
 #include<mutex>
 #include<functional>
 class KokodaiManager
@@ -14,6 +16,9 @@ class KokodaiManager
 private:
 	StandardWindow mainWindow;
 	Canvas3D mainCanvas;
+private:
+	RenderTarget::Window render_target;
+	DepthBuffer depth_buffer;
 private:
 	StandardWindow uiWindow;
 private:

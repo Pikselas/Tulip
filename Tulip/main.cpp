@@ -6,6 +6,7 @@
 #include"Terrain.h"
 #include"TargetWindow.h"
 #include"Cube.h"
+
 struct Factor
 {
 	float x;
@@ -56,21 +57,10 @@ Object BuildObject(Canvas3D& cnv)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	KokodaiManager manager;
-	//std::mt19937 gen(std::random_device{}());
+	std::mt19937 gen(std::random_device{}());
 	//auto start = std::chrono::system_clock::now();
 	std::vector<Object> objs;
 	objs.reserve(100);
-
-	/*Object obj = BuildObject<Cube<Canvas3D::VertexType>>(manager.GetCanvas());
-
-	for (int i = 0; i < 100; i++)
-	{		
-		obj.SetPosition(std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), 
-			std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen), 
-			std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen)
-		);
-		objs.emplace_back(obj);
-	}*/
 
 	const auto programDir = GetProgramDirectory();
 	std::vector<InputElemDesc> ieds = {
@@ -88,7 +78,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	obj.SetCBuffer(c_Buffer);
 	obj.SetPosition(0.0f, 0.0f, 0.0f);
 	
-	objs.emplace_back(obj);
+	//objs.emplace_back(obj);
+
+	for (int i = 0; i < 10; i++)
+	{
+		obj.SetPosition(std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen),
+			std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen),
+			std::uniform_real_distribution<float>{-10.0f, 10.0f}(gen)
+		);
+		objs.emplace_back(obj);
+	}
 
 	//manager.GetCanvas().camera.SetPosition(0.0f, 0.0f, 3.5f);
 	//manager.GetCanvas().camera.RotatePosition(10, 5, 10);

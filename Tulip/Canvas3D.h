@@ -12,16 +12,16 @@
 #include"Window.h"
 #include"Object.h"
 
+#include"Target.h"
+
 class Canvas3D
 {
 	friend class CanvasComponent;
 	template<typename t>
 	using PtrManager = Microsoft::WRL::ComPtr<t>;
-private:
+public:
 	PtrManager<ID3D11Device> Device;
-	PtrManager<IDXGISwapChain> SwapChain;
 	PtrManager<ID3D11DeviceContext> ImmediateContext;
-	PtrManager<ID3D11RenderTargetView> RenderTarget;
 	PtrManager<ID3D11DepthStencilView> DepthStencilView;
 	PtrManager<ID3D11Buffer> ConstBuffer;
 public:
@@ -67,13 +67,11 @@ private:
 private:
 	void UpdateCbuff(ID3D11Buffer * CBuffer , DirectX::XMMATRIX transform_matrix) const;
 public:
-	Canvas3D(Window& wnd);
+	Canvas3D();
 public:
 	std::pair<float, float> GetNormalizedWindowPos(int x, int y) const;
 	void ClearCanvas() const;
-	void PresentOnWindow() const;
 	void SetPrimitiveTopology(const PrimitiveTopology primitive) const;
-	void DrawObject(std::span<const VertexType> Vertices);
-	void DrawObject(std::span<const VertexType> Vertices, std::span<const unsigned int> indices);
 	void DrawObject(const Object& obj);
+	void SetRenderTarget(RenderTarget::Target& target);
 };
