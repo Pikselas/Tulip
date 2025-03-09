@@ -13,6 +13,7 @@
 #include"Object.h"
 
 #include"Target.h"
+#include"Camera.h"
 
 class Canvas3D
 {
@@ -39,26 +40,6 @@ public:
 	};
 private:
 	std::function<void()> DrawFunc = []() {};
-public:
-	class Camera
-	{
-	private:
-		DirectX::XMMATRIX transform_matrix;
-	private:
-		float rot_x = 0.0f, rot_y = 0.0f;
-		float roll = 0.0f, pitch = 0.0f, yaw = 0.0f;
-		float pos_x = 0.0f , pos_y = 0.0f , pos_z = 1.5f;
-	private:
-		void Transform();
-	public:
-		Camera();
-	public:
-		void RotateOrientation(const int x, const int y);
-		void RotatePosition(const int x, const int y, const int z);
-		void SetPosition(const float x, const float y, const float z);
-		DirectX::XMMATRIX GetTransformMatrix() const;
-	};
-	Camera camera;
 private:
 	DirectX::XMMATRIX ObjectTransform;
 private:
@@ -72,6 +53,6 @@ public:
 	std::pair<float, float> GetNormalizedWindowPos(int x, int y) const;
 	void ClearCanvas() const;
 	void SetPrimitiveTopology(const PrimitiveTopology primitive) const;
-	void DrawObject(const Object& obj);
+	void DrawObject(const Object& obj , const ::Camera& camera);
 	void SetRenderTarget(RenderTarget::Target& target);
 };

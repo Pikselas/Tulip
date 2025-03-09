@@ -53,23 +53,24 @@ primitive(uiWindow, 80, 190, 100, 100)
 
 	xRot.OnSlide = [&](RangeButton& rb)
 	{
-		mainCanvas.camera.RotateOrientation(rb.GetCurrentPos(), yRot.GetCurrentPos());
+		primary_camera.RotateOrientation(rb.GetCurrentPos(), yRot.GetCurrentPos());
+		OutputDebugString((std::to_string(rb.GetCurrentPos()) + "," + std::to_string(yRot.GetCurrentPos()) + "\n").c_str());
 	};
 	yRot.OnSlide = [&](RangeButton& rb)
 	{
-		mainCanvas.camera.RotateOrientation(xRot.GetCurrentPos(), rb.GetCurrentPos());
+		primary_camera.RotateOrientation(xRot.GetCurrentPos(), rb.GetCurrentPos());
 	};
 	roll.OnSlide = [&](RangeButton& rb)
 	{
-		mainCanvas.camera.RotatePosition(rb.GetCurrentPos(), pitch.GetCurrentPos(), yaw.GetCurrentPos());
+		primary_camera.RotatePosition(rb.GetCurrentPos(), pitch.GetCurrentPos(), yaw.GetCurrentPos());
 	};
 	pitch.OnSlide = [&](RangeButton& rb)
 	{
-		mainCanvas.camera.RotatePosition(roll.GetCurrentPos(), rb.GetCurrentPos(), yaw.GetCurrentPos());
+		primary_camera.RotatePosition(roll.GetCurrentPos(), rb.GetCurrentPos(), yaw.GetCurrentPos());
 	};
 	yaw.OnSlide = [&](RangeButton& rb)
 	{
-		mainCanvas.camera.RotatePosition(roll.GetCurrentPos(), pitch.GetCurrentPos(), rb.GetCurrentPos());
+		primary_camera.RotatePosition(roll.GetCurrentPos(), pitch.GetCurrentPos(), rb.GetCurrentPos());
 	};
 
 	auto GetF = [](const std::string& s)
@@ -84,21 +85,11 @@ primitive(uiWindow, 80, 190, 100, 100)
 		}
 	};
 	
-	xCam.SetText("0.0");
-	yCam.SetText("0.0");
 	zCam.SetText("1.0");
 	
-	xCam.OnTextChange = [&](TextEntry& te)
-	{
-		mainCanvas.camera.SetPosition(GetF(te.GetText()), GetF(yCam.GetText()), GetF(zCam.GetText()));
-	};
-	yCam.OnTextChange = [&](TextEntry& te)
-	{
-		mainCanvas.camera.SetPosition(GetF(te.GetText()), GetF(yCam.GetText()), GetF(zCam.GetText()));
-	};
 	zCam.OnTextChange = [&](TextEntry& te)
 	{
-		mainCanvas.camera.SetPosition(GetF(te.GetText()), GetF(yCam.GetText()), GetF(zCam.GetText()));
+		primary_camera.SetZ(GetF(zCam.GetText()));
 	};
 
 	xInc.OnClick = [&](TextButton& b)
@@ -152,7 +143,7 @@ void KokodaiManager::Run(std::span<Object> objects)
 			{
 				obj.OnUpdate(obj);
 			}
-			mainCanvas.DrawObject(obj);
+			mainCanvas.DrawObject(obj,primary_camera);
 		}
 		//mainCanvas.PresentOnWindow();
 		render_target.RenderFrame();

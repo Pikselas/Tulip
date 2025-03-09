@@ -30,7 +30,7 @@ void Canvas3D::SetPrimitiveTopology(const PrimitiveTopology primitive) const
 	ImmediateContext->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(primitive));
 }
 
-void Canvas3D::DrawObject(const Object& obj)
+void Canvas3D::DrawObject(const Object& obj , const ::Camera& p_camera)
 {
 	UINT offset = 0u;														    // displacement after which the actual data start (so 0 because no displacement is there)
 	ImmediateContext->IASetVertexBuffers(0u, 1u, obj.GetVBuff().GetAddressOf(), &obj.stride, &offset);
@@ -42,8 +42,8 @@ void Canvas3D::DrawObject(const Object& obj)
 	DrawFunc = [this, IndexSize]() { ImmediateContext->DrawIndexed(IndexSize, 0u, 0u); };
 	ObjectTransform = obj.GetTansformMatrix();
 	const auto matrix = DirectX::XMMatrixTranspose(
-		ObjectTransform * camera.GetTransformMatrix() *
-		DirectX::XMMatrixPerspectiveLH(2.0f, Halfwidth / Halfheight, 1.0f, 40.0f)
+		ObjectTransform * p_camera.GetTransformation() *
+		DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f , 1.0f, 40.0f)
 	);
 	if (auto cbuffer = obj.GetCBuffer())
 	{
@@ -74,45 +74,4 @@ void Canvas3D::SetRenderTarget(RenderTarget::Target& target)
 std::pair<float, float> Canvas3D::GetNormalizedWindowPos(int x, int y) const
 {
 	return { (x / Halfwidth) - 1.0f,  -((y / Halfheight) - 1.0f) };
-}
-
-void Canvas3D::Camera::Transform()
-{
-	const auto Pos = DirectX::XMVector3Transform(
-		DirectX::XMVectorSet(pos_x,pos_y, pos_z, 1.0f),
-		DirectX::XMMatrixRotationRollPitchYaw(rot_x, rot_y, 0.0f));
-	transform_matrix = DirectX::XMMatrixLookAtLH(Pos, DirectX::XMVectorZero(), DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) * DirectX::XMMatrixRotationRollPitchYaw(roll, pitch, yaw);
-}
-
-Canvas3D::Camera::Camera()
-{
-	Transform();
-}
-
-void Canvas3D::Camera::RotateOrientation(const int x, const int y)
-{
-	rot_x = DirectX::XM_PI * x / 180.0f;
-	rot_y = DirectX::XM_PI * y / 180.0f;
-	Transform();
-}
-
-void Canvas3D::Camera::RotatePosition(const int x, const int y, const int z)
-{
-	roll = DirectX::XM_PI * x / 180.0f;
-	pitch = DirectX::XM_PI * y / 180.0f;
-	yaw = DirectX::XM_PI * z / 180.0f;
-	Transform();
-}
-
-void Canvas3D::Camera::SetPosition(const float x, const float y, const float z)
-{
-	pos_x = x;
-	pos_y = y;
-	pos_z = z;
-	Transform();
-}
-
-DirectX::XMMATRIX Canvas3D::Camera::GetTransformMatrix() const
-{
-	return transform_matrix;
 }

@@ -9,6 +9,7 @@
 
 #include"TargetWindow.h"
 #include"DepthBuffer.h"
+#include"Camera.h"
 #include<mutex>
 #include<functional>
 class KokodaiManager
@@ -16,6 +17,7 @@ class KokodaiManager
 private:
 	StandardWindow mainWindow;
 	Canvas3D mainCanvas;
+	Camera primary_camera;
 private:
 	RenderTarget::Window render_target;
 	DepthBuffer depth_buffer;

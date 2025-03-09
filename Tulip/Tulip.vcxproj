@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Canvas3D.h" />
     <ClInclude Include="CanvasComponent.h" />
     <ClInclude Include="ConstantBuffer.h" />
