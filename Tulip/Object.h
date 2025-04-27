@@ -41,6 +41,7 @@ protected:
 	auto GetPShader() const noexcept { return m_PixelShader; }
 	auto GetCBuffer() const noexcept { return m_ConstantBuffer; }
 	auto GetTexture() const noexcept { return m_Texture; }
+public:
 	auto GetTansformMatrix() const noexcept
 	{
 		return DirectX::XMMatrixRotationRollPitchYaw(FixedPointRotationX, FixedPointRotationY, FixedPointRotationZ) *

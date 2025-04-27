@@ -22,13 +22,13 @@ public:
 	unsigned int OFFSET;
 };
 
-class VertexShader : CanvasComponent
+class VertexShader
 {
 private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> SHADER;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> INPUT_LAYOUT;
 public:
-	VertexShader(Canvas3D& c3d, const std::filesystem::path& cso_file, const std::span<InputElemDesc> descs)
+	VertexShader(ID3D11Device* device, const std::filesystem::path& cso_file, const std::span<InputElemDesc> descs)
 	{
 		Microsoft::WRL::ComPtr<ID3DBlob> shader_buffer;
 		D3DReadFileToBlob(cso_file.c_str(), &shader_buffer);
@@ -37,8 +37,10 @@ public:
 		{
 			iedescs.emplace_back(desc.SEMANTIC_NAME.c_str(), 0, static_cast<DXGI_FORMAT>(desc.FORMAT), 0, desc.OFFSET, D3D11_INPUT_PER_VERTEX_DATA, 0);
 		}
-		CallOnDevice(c3d,&ID3D11Device::CreateVertexShader,shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), nullptr, &SHADER);
-		CallOnDevice(c3d, &ID3D11Device::CreateInputLayout, iedescs.data(), (UINT)iedescs.size(), shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), &INPUT_LAYOUT);
+		//CallOnDevice(c3d,&ID3D11Device::CreateVertexShader,shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), nullptr, &SHADER);
+		//CallOnDevice(c3d, &ID3D11Device::CreateInputLayout, iedescs.data(), (UINT)iedescs.size(), shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), &INPUT_LAYOUT);
+		device->CreateVertexShader(shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), nullptr, &SHADER);
+		device->CreateInputLayout(iedescs.data(), (UINT)iedescs.size(), shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), &INPUT_LAYOUT);
 	}
 	auto GetShader() const
 	{

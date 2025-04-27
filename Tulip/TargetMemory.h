@@ -58,7 +58,7 @@ namespace RenderTarget
 
 			D3D11_MAPPED_SUBRESOURCE mapped_resource;
 			device_context->Map(read_texture.Get(), 0, D3D11_MAP_READ, 0, &mapped_resource);
-			std::memcpy(surface.Raw(), mapped_resource.pData, sizeof(ColorType) * surface.GetWidth() * surface.GetHeight());
+			std::memcpy((void*)surface.Raw(), mapped_resource.pData, sizeof(ColorType) * surface.GetWidth() * surface.GetHeight());
 			device_context->Unmap(read_texture.Get(), 0);
 		}
 	};

@@ -10,6 +10,10 @@
 #include"TargetWindow.h"
 #include"DepthBuffer.h"
 #include"Camera.h"
+
+#include "ShaderConfiguration.h"
+#include "RenderSystem.h"
+
 #include<mutex>
 #include<functional>
 class KokodaiManager
@@ -19,10 +23,14 @@ private:
 	Canvas3D mainCanvas;
 	Camera primary_camera;
 private:
+	CustomWindow uiWindow;
+	CustomWindow renderWindow;
+private:
 	RenderTarget::Window render_target;
 	DepthBuffer depth_buffer;
 private:
-	StandardWindow uiWindow;
+	ConstantBuffer transformation_buffer;
+	Shader::NonTexturedShaderConfig s_config;
 private:
 	Label rotXLabel;
 	Label rotYLabel;

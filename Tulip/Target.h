@@ -1,10 +1,10 @@
 #pragma once
 #include<d3d11.h>
 #include<wrl.h>
-
+#include "RenderComponent.h"
 namespace RenderTarget
 {
-	class Target
+	class Target : public RenderComponent
 	{
 	private:
 		const unsigned int width;
@@ -59,5 +59,11 @@ namespace RenderTarget
 		{
 			return width;
 		}
+	public:
+		void BindToContext(ID3D11DeviceContext* context) const override
+		{
+			context->OMSetRenderTargets(1u, render_target_view.GetAddressOf(), nullptr);
+		}
+		virtual ~Target() = default;
 	};
 }

@@ -19,12 +19,6 @@ Canvas3D::Canvas3D() : Halfheight(600 / 2), Halfwidth(800 / 2)
 	ImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void Canvas3D::ClearCanvas() const
-{
-	float color[] = { 0.0f , 0.0f , 0.0f , 0.0f };
-	ImmediateContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
-}
-
 void Canvas3D::SetPrimitiveTopology(const PrimitiveTopology primitive) const
 {
 	ImmediateContext->IASetPrimitiveTopology(static_cast<D3D11_PRIMITIVE_TOPOLOGY>(primitive));
@@ -35,20 +29,21 @@ void Canvas3D::DrawObject(const Object& obj , const ::Camera& p_camera)
 	UINT offset = 0u;														    // displacement after which the actual data start (so 0 because no displacement is there)
 	ImmediateContext->IASetVertexBuffers(0u, 1u, obj.GetVBuff().GetAddressOf(), &obj.stride, &offset);
 	ImmediateContext->IASetIndexBuffer(obj.GetIBuff().Get(), DXGI_FORMAT_R32_UINT, 0u);
-	ImmediateContext->VSSetShader(obj.GetVShader().Get(), nullptr, 0u);
-	ImmediateContext->IASetInputLayout(obj.GetILayout().Get());
-	ImmediateContext->PSSetShader(obj.GetPShader().Get(), nullptr, 0u);
+	//ImmediateContext->VSSetShader(obj.GetVShader().Get(), nullptr, 0u);
+	//ImmediateContext->IASetInputLayout(obj.GetILayout().Get());
+	//ImmediateContext->PSSetShader(obj.GetPShader().Get(), nullptr, 0u);
 	const auto IndexSize = obj.m_IndexCount;
 	DrawFunc = [this, IndexSize]() { ImmediateContext->DrawIndexed(IndexSize, 0u, 0u); };
-	ObjectTransform = obj.GetTansformMatrix();
+	
 	const auto matrix = DirectX::XMMatrixTranspose(
-		ObjectTransform * p_camera.GetTransformation() *
+		obj.GetTansformMatrix() * p_camera.GetTransformation() *
 		DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f , 1.0f, 40.0f)
 	);
+	
 	if (auto cbuffer = obj.GetCBuffer())
 	{
-		ImmediateContext->VSSetConstantBuffers(0u, 1u, cbuffer->GetAddressOf());
-		UpdateCbuff(cbuffer->Get(), matrix);
+		//ImmediateContext->VSSetConstantBuffers(0u, 1u, cbuffer->GetAddressOf());
+		//UpdateCbuff(cbuffer->Get(), matrix);
 	}
 	if (auto texture = obj.GetTexture())
 	{
@@ -68,7 +63,7 @@ void Canvas3D::SetRenderTarget(RenderTarget::Target& target)
 	vp.MaxDepth = 1;				// maximum depth for z axis
 	vp.MinDepth = 0;				// minimum depth for z axis
 	ImmediateContext->RSSetViewports(1u, &vp);
-	ImmediateContext->OMSetRenderTargets(1u, target.render_target_view.GetAddressOf(), DepthStencilView.Get());
+	ImmediateContext->OMSetRenderTargets(1u, target.render_target_view.GetAddressOf(), nullptr);
 }
 
 std::pair<float, float> Canvas3D::GetNormalizedWindowPos(int x, int y) const

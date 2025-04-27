@@ -23,8 +23,6 @@ class Canvas3D
 public:
 	PtrManager<ID3D11Device> Device;
 	PtrManager<ID3D11DeviceContext> ImmediateContext;
-	PtrManager<ID3D11DepthStencilView> DepthStencilView;
-	PtrManager<ID3D11Buffer> ConstBuffer;
 public:
 	struct VertexType
 	{
@@ -41,17 +39,14 @@ public:
 private:
 	std::function<void()> DrawFunc = []() {};
 private:
-	DirectX::XMMATRIX ObjectTransform;
-private:
 	const float Halfheight;
 	const float Halfwidth;
-private:
+public:
 	void UpdateCbuff(ID3D11Buffer * CBuffer , DirectX::XMMATRIX transform_matrix) const;
 public:
 	Canvas3D();
 public:
 	std::pair<float, float> GetNormalizedWindowPos(int x, int y) const;
-	void ClearCanvas() const;
 	void SetPrimitiveTopology(const PrimitiveTopology primitive) const;
 	void DrawObject(const Object& obj , const ::Camera& camera);
 	void SetRenderTarget(RenderTarget::Target& target);

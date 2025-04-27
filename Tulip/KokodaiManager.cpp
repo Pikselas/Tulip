@@ -2,11 +2,16 @@
 
 KokodaiManager::KokodaiManager()
 	:
-mainWindow("Kokodai"),
-render_target(mainCanvas.Device.Get(), mainWindow.window_handle, 800, 600),
+mainWindow("Tulip - Engine",1200,610),
 
-uiWindow("Kokodai - control panel", 400, 400),
+uiWindow(&mainWindow,0,"",WS_CHILD,810,100,400, 400),
+renderWindow(&mainWindow, 0, "", WS_CHILD, 5, 5, 800, 600),
+render_target(mainCanvas.Device.Get(), renderWindow.window_handle, 800, 600),
 depth_buffer(mainCanvas.Device.Get(), 800, 600),
+
+s_config(mainCanvas.Device.Get()),
+transformation_buffer(mainCanvas.Device.Get(), sizeof(DirectX::XMMATRIX)),
+
 rotXLabel(uiWindow, "rot-X", 10, 10, 30, 20),
 rotYLabel(uiWindow, "rot-Y", 10, 40, 30, 20),
 camXLabel(uiWindow, "X", 15, 70, 15, 20),
@@ -37,6 +42,8 @@ zDec(uiWindow, "-", 285, 80, 35, 10),
 primitive(uiWindow, 80, 190, 100, 100)
 
 {
+
+
 	primitive.AddItem("Triangle");
 	primitive.AddItem("Line");
 	primitive.AddItem("Point");
@@ -116,33 +123,43 @@ primitive(uiWindow, 80, 190, 100, 100)
 	{
 		zCam.SetText(std::to_string(GetF(zCam.GetText()) - 1.0f));
 	};
+
+	mainCanvas.SetRenderTarget(render_target);
+	depth_buffer.Bind(mainCanvas.ImmediateContext.Get());
+	s_config.SetConstantBuffer(transformation_buffer);
+	s_config.BindToContext(mainCanvas.ImmediateContext.Get());
 }
 
 void KokodaiManager::Run(std::span<Object> objects)
 {
 	auto time_point = std::chrono::system_clock::now();
-	mainCanvas.SetRenderTarget(render_target);
-	depth_buffer.Bind(mainCanvas.ImmediateContext.Get());
-
-	while (mainWindow.IsOpen() && uiWindow.IsOpen())
+	while (mainWindow.IsOpen())
 	{
 		const auto now = std::chrono::system_clock::now();
 		const auto elapsed = std::chrono::duration<float>(now - time_point).count();
 		
 		//DirectX::XMVECTOR light_direction = DirectX::XMVectorSet(1.0f, 1.0f, 0.0f, 1.0f);
 		//light_direction = DirectX::XMVector3Transform(light_direction, DirectX::XMMatrixRotationRollPitchYaw(0.0f, 0.0f, elapsed));
-		
 
 		mtx.lock();
 		render_target.Clear();
-		//mainCanvas.ClearCanvas();
 		depth_buffer.Clear(mainCanvas.ImmediateContext.Get());
+	
 		for (auto& obj : objects)
 		{
 			if (obj.OnUpdate)
 			{
 				obj.OnUpdate(obj);
 			}
+
+			obj.SetCBuffer(transformation_buffer);
+
+			const auto matrix = DirectX::XMMatrixTranspose
+			(
+				obj.GetTansformMatrix() * primary_camera.GetTransformation() *
+				DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 1.0f, 40.0f)
+			);
+			mainCanvas.UpdateCbuff(transformation_buffer.GetBuffer().Get(), matrix);
 			mainCanvas.DrawObject(obj,primary_camera);
 		}
 		//mainCanvas.PresentOnWindow();
