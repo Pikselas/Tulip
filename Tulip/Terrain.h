@@ -9,8 +9,8 @@ class Terrain : public Object
 public:
     Terrain(auto& canvas)
     {
-        const int xSize = 20;
-        const int zSize = 20;
+        const int xSize = 100;
+        const int zSize = 100;
 
         std::array<VertexType, (xSize + 1)* (zSize + 1)> Vertices = {};
         std::array<unsigned int, 6 * xSize * zSize> Indices = {};

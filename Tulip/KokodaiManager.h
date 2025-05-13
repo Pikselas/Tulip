@@ -14,6 +14,9 @@
 #include "ShaderConfiguration.h"
 #include "RenderSystem.h"
 
+#include "Terrain.h"
+#include "Cube.h"
+
 #include<mutex>
 #include<functional>
 class KokodaiManager
@@ -31,6 +34,7 @@ private:
 private:
 	ConstantBuffer transformation_buffer;
 	Shader::NonTexturedShaderConfig s_config;
+	Shader::TerrainShaderConfig t_config;
 private:
 	Label rotXLabel;
 	Label rotYLabel;

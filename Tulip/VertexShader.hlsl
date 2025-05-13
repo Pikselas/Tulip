@@ -13,6 +13,6 @@ VertexShaderOut main(float3 pos : POSITION, float4 col : COLOR)
 {
 	VertexShaderOut Out;
 	Out.pos = mul(float4(pos, 1.0f) , trans);
-	Out.color = col;
+    Out.color = col;
 	return Out;
 }

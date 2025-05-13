@@ -5,7 +5,9 @@
 #include<wrl.h>
 #include<DirectXMath.h>
 #include<functional>
-#include"CanvasComponent.h"
+#include "CanvasComponent.h"
+#include "ShaderConfiguration.h"
+
 class Object : CanvasComponent
 {
 	friend class Canvas3D;
@@ -13,11 +15,7 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_VertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_IndexBuffer;
 protected:
-	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_VertexShader;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_PixelShader;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_InputLayout;
-	std::optional<Microsoft::WRL::ComPtr<ID3D11Buffer>> m_ConstantBuffer;
-	std::optional<std::pair<Microsoft::WRL::ComPtr<ID3D11SamplerState>, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>>> m_Texture;
+	Shader::ShaderConfiguration* shader_config = nullptr;
 protected:
 	float FixedPointRotationX = 0.0f;
 	float FixedPointRotationY = 0.0f;
@@ -36,11 +34,9 @@ protected:
 protected:
 	auto GetVBuff() const noexcept { return m_VertexBuffer; }
 	auto GetIBuff() const noexcept { return m_IndexBuffer; }
-	auto GetVShader() const noexcept { return m_VertexShader; }
-	auto GetILayout() const noexcept { return m_InputLayout; }
-	auto GetPShader() const noexcept { return m_PixelShader; }
-	auto GetCBuffer() const noexcept { return m_ConstantBuffer; }
-	auto GetTexture() const noexcept { return m_Texture; }
+	auto GetIndexCount() const noexcept { return m_IndexCount; }
+public:
+	auto GetShaderConfig() const noexcept { return shader_config; }
 public:
 	auto GetTansformMatrix() const noexcept
 	{
@@ -68,12 +64,12 @@ public:
 		//Device->CreateBuffer(&bd, &subd, &VBuffer);
 
 		D3D11_BUFFER_DESC ibd = { 0 };
-		ibd.ByteWidth = sizeof(size_t) * indices.size();
+		ibd.ByteWidth = sizeof(decltype(indices)::element_type) * indices.size();
 		ibd.Usage = D3D11_USAGE_DEFAULT;
 		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		ibd.CPUAccessFlags = 0u;
 		ibd.MiscFlags = 0u;
-		ibd.StructureByteStride = sizeof(size_t);
+		ibd.StructureByteStride = sizeof(decltype(indices)::element_type);
 
 		D3D11_SUBRESOURCE_DATA isubd = { 0 };
 		isubd.pSysMem = indices.data();
@@ -82,23 +78,6 @@ public:
 		//Device->CreateBuffer(&ibd, &isubd, &m_IndexBuffe);
 
 		m_IndexCount = indices.size();
-	}
-	void SetVShader(auto& vShader) noexcept
-	{
-		m_VertexShader = vShader.GetShader();
-		m_InputLayout = vShader.GetInputLayout();
-	}
-	void SetPShader(auto& pShader) noexcept
-	{
-		m_PixelShader = pShader.GetShader();
-	}
-	void SetCBuffer(auto& cBuffer) noexcept
-	{
-		m_ConstantBuffer = cBuffer.GetBuffer();
-	}
-	void SetTexture(auto& texture) noexcept
-	{
-		m_Texture = std::make_pair(texture.GetSampler(), texture.GetTextureView());
 	}
 public:
 	std::function<void(Object&)> OnUpdate = nullptr;
@@ -132,5 +111,19 @@ public:
 		m_PositionX = x;
 		m_PositionY = y;
 		m_PositionZ = z;
+	}
+	void SetPosition(DirectX::XMVECTOR pos) noexcept
+	{
+		m_PositionX = DirectX::XMVectorGetX(pos);
+		m_PositionY = DirectX::XMVectorGetY(pos);
+		m_PositionZ = DirectX::XMVectorGetZ(pos);
+	}
+	void SetShaderConfig(Shader::ShaderConfiguration& config) noexcept
+	{
+		shader_config = &config;
+	}
+	DirectX::XMVECTOR GetPosition() const noexcept
+	{
+		return DirectX::XMVectorSet(m_PositionX, m_PositionY, m_PositionZ, 0.0f);
 	}
 };

@@ -28,6 +28,10 @@ public:
 		pitch = DirectX::XM_PI * y / 180.0f;
 		yaw = DirectX::XM_PI * z / 180.0f;
 	}
+	void RotateY(float angle)
+	{
+		rot_y = angle;
+	}
 	float GetZ() const
 	{
 		return r;

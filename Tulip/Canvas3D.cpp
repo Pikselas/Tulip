@@ -40,16 +40,16 @@ void Canvas3D::DrawObject(const Object& obj , const ::Camera& p_camera)
 		DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f , 1.0f, 40.0f)
 	);
 	
-	if (auto cbuffer = obj.GetCBuffer())
-	{
-		//ImmediateContext->VSSetConstantBuffers(0u, 1u, cbuffer->GetAddressOf());
-		//UpdateCbuff(cbuffer->Get(), matrix);
-	}
-	if (auto texture = obj.GetTexture())
-	{
-		ImmediateContext->PSSetSamplers(0u, 1u, texture->first.GetAddressOf());
-		ImmediateContext->PSSetShaderResources(0u, 1u, texture->second.GetAddressOf());
-	}
+	//if (auto cbuffer = obj.GetCBuffer())
+	//{
+	//	//ImmediateContext->VSSetConstantBuffers(0u, 1u, cbuffer->GetAddressOf());
+	//	//UpdateCbuff(cbuffer->Get(), matrix);
+	//}
+	//if (auto texture = obj.GetTexture())
+	//{
+	//	ImmediateContext->PSSetSamplers(0u, 1u, texture->first.GetAddressOf());
+	//	ImmediateContext->PSSetShaderResources(0u, 1u, texture->second.GetAddressOf());
+	//}
 	DrawFunc();
 }
 

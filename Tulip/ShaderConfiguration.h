@@ -57,4 +57,26 @@ namespace Shader
 			v_shader.SetConstBuffer(buffer.GetBuffer().Get());
 		}
 	};
+
+	class TerrainShaderConfig : public ShaderConfiguration
+	{
+	public:
+		TerrainShaderConfig(ID3D11Device* device)
+		{
+			auto p_dir = GetProgramDirectory();
+
+			const std::array<InputElemDesc, 2> input_desc =
+			{
+				InputElemDesc{"POSITION" ,InputElemDesc::INPUT_FORMAT::FLOAT3 , 0},
+				InputElemDesc{"COLOR" ,InputElemDesc::INPUT_FORMAT::UINT4 , 12}
+			};
+
+			v_shader = VertexShader{ device , p_dir / "TerrainVertexShader.cso", std::span<const InputElemDesc>(input_desc) };
+			p_shader = PixelShader{ device , p_dir / "TerrainPixelShader.cso" };
+		}
+		void SetConstantBuffer(ConstantBuffer buffer)
+		{
+			v_shader.SetConstBuffer(buffer.GetBuffer().Get());
+		}
+	};
 }
