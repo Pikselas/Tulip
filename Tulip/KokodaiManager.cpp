@@ -43,8 +43,6 @@ zDec(uiWindow, "-", 285, 80, 35, 10),
 primitive(uiWindow, 80, 190, 100, 100)
 
 {
-
-
 	primitive.AddItem("Triangle");
 	primitive.AddItem("Line");
 	primitive.AddItem("Point");
@@ -135,66 +133,17 @@ primitive(uiWindow, 80, 190, 100, 100)
 void KokodaiManager::Run(std::span<Object> objects)
 {
 	auto time_point = std::chrono::system_clock::now();
-	auto terrain1 = Terrain<Canvas3D::VertexType>{ GetCanvas() };
-	Object space_shuttle = Cube<Canvas3D::VertexType>{ GetCanvas() };
-	terrain1.SetShaderConfig(t_config);
-	space_shuttle.SetShaderConfig(s_config);
-	Object terrain2 = terrain1;
-
-	space_shuttle.SetPosition(0.0f, 0.0f, 0.0f);
-
-	terrain1.SetPosition(-50.0f, 2.0f, 0.0f);
-	terrain2.SetPosition(-50.0f, 2.0f, 100.0f);
-
-	terrain1.RotatePositional((unsigned short)0, 0, 180);
-	terrain2.RotatePositional((unsigned short)0, 0, 180);
-
-	/*terrain1.SetCBuffer(transformation_buffer);
-	terrain2.SetCBuffer(transformation_buffer);
-	space_shuttle.SetCBuffer(transformation_buffer);*/
-
-	auto draw = [this](Object& obj) 
-		{
-			const auto matrix = DirectX::XMMatrixTranspose
-			(
-				obj.GetTansformMatrix() * primary_camera.GetTransformation() *
-				DirectX::XMMatrixPerspectiveLH(1.0f, 600.0f / 800.0f, 1.0f, 100.0f)
-			);
-			mainCanvas.UpdateCbuff(transformation_buffer.GetBuffer().Get(), matrix);
-			obj.GetShaderConfig()->BindToContext(mainCanvas.ImmediateContext.Get());
-			mainCanvas.DrawObject(obj, primary_camera);
-		};
-
 	auto getNormalizedPoint = [Halfwidth = 400 , Halfheight = 300](int x, int y) -> std::pair<float, float>
 		{
 			return { ((float)x / Halfwidth) - 1.0f,  -(((float)y / Halfheight) - 1.0f) };
 		};
 
+	Scene scene{ GetCanvas() };
+
 	renderWindow.mouse.OnMove = [&](CustomWindow& wnd) 
 		{
 			auto [x, y] = getNormalizedPoint(wnd.mouse.GetX() , wnd.mouse.GetY());
-			//auto angle_between_mouse_and_camera = (DirectX::XMVector2AngleBetweenVectors(DirectX::XMVectorSet(x, y, -5.0f, 1.0f) , DirectX::XMVectorZero()));
-			
-			//auto mouse_vector_dir = DirectX::XMVectorSet(x, 0.0f, 1.0f, 1.0f);
-			auto angle_y = std::atan2(1.0f, x);
-			auto angle_x = std::atan2(1.0f, y);
-
-			auto angle_y_deg = (angle_y * 180.0f) / DirectX::XM_PI;
-			auto angle_x_deg = (angle_x * 180.0f) / DirectX::XM_PI;
-
-			primary_camera.SetZ(10.0f);
-			//primary_camera.SetLookAt(x, y, primary_camera.GetZ());
-			//primary_camera.RotateOrientation(angle_x_deg - 90 , angle_y_deg - 90);
-			space_shuttle.RotateFixedPoint(0.0f , -angle_y, DirectX::XM_PIDIV2 - angle_x);
-
-			//primary_camera.SetLookAt(x, y, primary_camera.GetZ());
-			//primary_camera.SetLookAt(x, y, primary_camera.GetZ());
-			//primary_camera.RotateOrientation(0 , wnd.mouse.GetX());
-			
-
-			/*primary_camera.RotateY(angle_between_mouse_and_camera);
-			OutputDebugString(std::to_string(angle_between_mouse_and_camera).c_str());
-			OutputDebugString("\n");*/
+			scene.SetMovementLocation(x, y);
 		};
 
 	while (mainWindow.IsOpen())
@@ -208,47 +157,14 @@ void KokodaiManager::Run(std::span<Object> objects)
 		mtx.lock();
 		render_target.Clear();
 		depth_buffer.Clear(mainCanvas.ImmediateContext.Get());
-	
-		draw(terrain1);
-		draw(terrain2);
-		draw(space_shuttle);
 
-		auto pos = terrain1.GetPosition();
-		pos = DirectX::XMVectorAdd(pos, DirectX::XMVectorSet(0.0f, 0.0f, -0.1f, 0.0f));
-		if(DirectX::XMVectorGetZ(pos) < -100.0f)
-			pos = DirectX::XMVectorSet(-50.0f, 2.0f, 100.0f ,0.0f);
-		terrain1.SetPosition(pos);
+		scene.Render(GetCanvas());
+		scene.Update();
 
-		pos = terrain2.GetPosition();
-		pos = DirectX::XMVectorAdd(pos, DirectX::XMVectorSet(0.0f, 0.0f, -0.1f, 0.0f));
-		if (DirectX::XMVectorGetZ(pos) < -100.0f)
-			pos = DirectX::XMVectorSet(-50.0f, 2.0f, 100.0f, 0.0f);
-		terrain2.SetPosition(pos);
-
-
-		/*for (auto& obj : objects)
-		{
-			if (obj.OnUpdate)
-			{
-				obj.OnUpdate(obj);
-			}
-
-			obj.SetCBuffer(transformation_buffer);
-
-			const auto matrix = DirectX::XMMatrixTranspose
-			(
-				obj.GetTansformMatrix() * primary_camera.GetTransformation() *
-				DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 1.0f, 40.0f)
-			);
-			mainCanvas.UpdateCbuff(transformation_buffer.GetBuffer().Get(), matrix);
-			mainCanvas.DrawObject(obj,primary_camera);
-		}*/
-		//mainCanvas.PresentOnWindow();
 		render_target.RenderFrame();
 		mtx.unlock();
 		if (OnUpdate)
 			OnUpdate();
-		//mainWindow.Redraw();
 		CustomWindow::DispatchWindowEventsNonBlocking();
 	}
 }
