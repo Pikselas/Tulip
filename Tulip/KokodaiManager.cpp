@@ -131,7 +131,7 @@ void KokodaiManager::Run(std::span<Object> objects)
 			return { ((float)x / Halfwidth) - 1.0f,  -(((float)y / Halfheight) - 1.0f) };
 		};
 
-	Scene scene{ GetCanvas() };
+	Scene2 scene{ GetCanvas() };
 
 	renderWindow.mouse.OnMove = [&](CustomWindow& wnd) 
 		{
@@ -151,6 +151,7 @@ void KokodaiManager::Run(std::span<Object> objects)
 		render_target.Clear();
 		depth_buffer.Clear(mainCanvas.ImmediateContext.Get());
 
+		scene.primary_camera = primary_camera;
 		scene.Render(GetCanvas());
 		scene.Update(elapsed);
 

@@ -17,6 +17,7 @@
 #include "Terrain.h"
 #include "Cube.h"
 #include "Scene.h"
+#include "Scene2.h"
 
 #include<mutex>
 #include<functional>
