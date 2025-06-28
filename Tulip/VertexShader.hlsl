@@ -1,18 +1,6 @@
-struct VertexShaderOut // this is the ouput type
-{
-	float4 color : COLOR; // this is the user defined semantic for color which will be passed to pixel shader
-	float4 pos : SV_POSITION; // this is the SYSTEM_VALUE SEMANTIC this is fixed (and defined by the API) 
-};
+#include "Common_VertexShader_Include.hlsli"
 
-cbuffer cv
+VertexShaderOut main(VertexShaderInput vs_inp)
 {
-	matrix trans;
-};
-
-VertexShaderOut main(float3 pos : POSITION, float4 col : COLOR)
-{
-	VertexShaderOut Out;
-	Out.pos = mul(float4(pos, 1.0f) , trans);
-    Out.color = col;
-	return Out;
+    return ProcessVertex(vs_inp);
 }

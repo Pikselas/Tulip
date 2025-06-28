@@ -11,17 +11,28 @@ namespace Shader
 {
 	class Shader
 	{
-	protected:
+	public:
+		using ConstantBufferBinder = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11Buffer* const*);
+	private:
+		ConstantBufferBinder buffer_binder = nullptr;
+	private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> const_buffer;
-		void (ID3D11DeviceContext::* set_const_buffer)(UINT, UINT, ID3D11Buffer* const*) = nullptr;
 	public:
 		virtual ~Shader() = default;
+	protected:
+		void set_const_buffer_binder(ConstantBufferBinder binder)
+		{
+			buffer_binder = binder;
+		}
 	public:
-		virtual void SetConstBuffer(ID3D11Buffer* context) = 0;
+		void SetConstBuffer(Microsoft::WRL::ComPtr<ID3D11Buffer> buffer)
+		{
+			const_buffer = buffer;
+		}
 		virtual void Bind(ID3D11DeviceContext* context) const
 		{
 			if(const_buffer)
-				(context->*set_const_buffer)(0u, 1u, const_buffer.GetAddressOf());
+				(context->*buffer_binder)(0u, 1u, const_buffer.GetAddressOf());
 		}
 	};
 
@@ -44,6 +55,8 @@ namespace Shader
 			//CallOnDevice(c3d, &ID3D11Device::CreateInputLayout, iedescs.data(), (UINT)iedescs.size(), shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), &INPUT_LAYOUT);
 			device->CreateVertexShader(shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), nullptr, &shader);
 			device->CreateInputLayout(iedescs.data(), (UINT)iedescs.size(), shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), &input_layout);
+			
+			set_const_buffer_binder(&ID3D11DeviceContext::VSSetConstantBuffers);
 		}
 
 		void Bind(ID3D11DeviceContext* context) const override
@@ -52,12 +65,6 @@ namespace Shader
 			context->IASetInputLayout(input_layout.Get());
 
 			Shader::Bind(context);
-		}
-
-		void SetConstBuffer(ID3D11Buffer* buffer) override
-		{
-			const_buffer = buffer;
-			set_const_buffer = &ID3D11DeviceContext::VSSetConstantBuffers;
 		}
 	};
 
@@ -72,17 +79,13 @@ namespace Shader
 			D3DReadFileToBlob(cso_file.c_str(), &shader_buffer);
 			//CallOnDevice(c3d, &ID3D11Device::CreatePixelShader, shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), nullptr, &SHADER);
 			device->CreatePixelShader(shader_buffer->GetBufferPointer(), shader_buffer->GetBufferSize(), nullptr, &shader);
+			set_const_buffer_binder(&ID3D11DeviceContext::PSSetConstantBuffers);
 		}
 	public:
 		void Bind(ID3D11DeviceContext* context) const override
 		{
 			context->PSSetShader(shader.Get() , nullptr , 0);
 			Shader::Bind(context);
-		}
-		void SetConstBuffer(ID3D11Buffer* buffer) override
-		{
-			const_buffer = buffer;
-			set_const_buffer = &ID3D11DeviceContext::PSSetConstantBuffers;
 		}
 	};
 }

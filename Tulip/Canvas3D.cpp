@@ -1,13 +1,5 @@
 #include"Canvas3D.h"
 
-void Canvas3D::UpdateCbuff(ID3D11Buffer* CBuffer,DirectX::XMMATRIX transform_matrix) const
-{	
-	D3D11_MAPPED_SUBRESOURCE ms;
-	ImmediateContext->Map(CBuffer, 0u, D3D11_MAP_WRITE_DISCARD, 0u, &ms);
-	std::memcpy(ms.pData, &transform_matrix, sizeof(transform_matrix));
-	ImmediateContext->Unmap(CBuffer, 0u);
-}
-
 Canvas3D::Canvas3D() : Halfheight(600 / 2), Halfwidth(800 / 2)
 {
 	if (auto hrcode = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &Device, nullptr, &ImmediateContext); FAILED(hrcode))
@@ -17,6 +9,33 @@ Canvas3D::Canvas3D() : Halfheight(600 / 2), Halfwidth(800 / 2)
 
 	//draws the vertices as a list of TRIANGLE
 	ImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;							// uses the alpha channel of the source pixel as the blend factor,
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;					// uses the inverse of the alpha channel of the source pixel as the blend factor
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;								// adds the source and destination blend factors
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;							// it is fully opaque
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;		// enables all the color channels for writing
+
+	Microsoft::WRL::ComPtr<ID3D11BlendState> blendState;
+	Device->CreateBlendState(&blendDesc, &blendState);
+	ImmediateContext->OMSetBlendState(blendState.Get(), nullptr, 0xffffffff);
+
+	//creating geometry shader
+	char buffer[MAX_PATH];
+	GetModuleFileName(nullptr, buffer, 100);
+	std::filesystem::path path = buffer;
+	path = path.parent_path();
+	path /= "TextureGS.cso";
+
+	Microsoft::WRL::ComPtr<ID3D11GeometryShader> GeometryShader;
+	Microsoft::WRL::ComPtr<ID3DBlob> pBlob;
+	D3DReadFileToBlob(path.c_str(), &pBlob);
+	Device->CreateGeometryShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &GeometryShader);
+	ImmediateContext->GSSetShader(GeometryShader.Get(), nullptr, 0u);
 }
 
 void Canvas3D::SetPrimitiveTopology(const PrimitiveTopology primitive) const
@@ -35,10 +54,10 @@ void Canvas3D::DrawObject(const Object& obj , const ::Camera& p_camera)
 	const auto IndexSize = obj.m_IndexCount;
 	DrawFunc = [this, IndexSize]() { ImmediateContext->DrawIndexed(IndexSize, 0u, 0u); };
 	
-	const auto matrix = DirectX::XMMatrixTranspose(
-		obj.GetTansformMatrix() * p_camera.GetTransformation() *
+	/*const auto matrix = DirectX::XMMatrixTranspose(
+		obj.GetTransformMatrix() * p_camera.GetTransformation() *
 		DirectX::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f , 1.0f, 40.0f)
-	);
+	);*/
 	
 	//if (auto cbuffer = obj.GetCBuffer())
 	//{

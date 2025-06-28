@@ -132,6 +132,15 @@
     <ClInclude Include="Scene.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="ObjLoader.h">
+      <Filter>Experiments</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene2.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonSceneHelpers.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Canvas3D.cpp">
@@ -181,5 +190,19 @@
     <FxCompile Include="TerrainVertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="AsteroidPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="VoiaterPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Common_Includes.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Common_VertexShader_Include.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

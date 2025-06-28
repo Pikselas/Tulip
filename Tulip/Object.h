@@ -29,6 +29,8 @@ protected:
 	float m_PositionY = 0.0f;
 	float m_PositionZ = 0.0f;
 protected:
+	DirectX::XMMATRIX transformation = DirectX::XMMatrixIdentity();
+protected:
 	size_t m_IndexCount = 0;
 	unsigned int stride = 0;
 protected:
@@ -38,10 +40,10 @@ protected:
 public:
 	auto GetShaderConfig() const noexcept { return shader_config; }
 public:
-	auto GetTansformMatrix() const noexcept
+	auto GetTransformMatrix() const noexcept
 	{
-		return DirectX::XMMatrixRotationRollPitchYaw(FixedPointRotationX, FixedPointRotationY, FixedPointRotationZ) *
-			DirectX::XMMatrixTranslation(m_PositionX, m_PositionY, m_PositionZ) * DirectX::XMMatrixRotationRollPitchYaw(PositionalRotateX, PositionalRotateY, PositionalRotateZ);
+		return (DirectX::XMMatrixRotationRollPitchYaw(FixedPointRotationX, FixedPointRotationY, FixedPointRotationZ) *
+			DirectX::XMMatrixTranslation(m_PositionX, m_PositionY, m_PositionZ) * DirectX::XMMatrixRotationRollPitchYaw(PositionalRotateX, PositionalRotateY, PositionalRotateZ)) * transformation;
 	}
 public:
 	template<typename VertexType>
@@ -94,13 +96,13 @@ public:
 		PositionalRotateY = y;
 		PositionalRotateZ = z;
 	}
-	void RotateFixedPoint(const unsigned short x, const unsigned short y, const unsigned short z) noexcept
+	void RotateFixedPoint(const short x, const short y, const short z) noexcept
 	{
 		FixedPointRotationX = x * DirectX::XM_PI / 180;
 		FixedPointRotationY = y * DirectX::XM_PI / 180;
 		FixedPointRotationZ = z * DirectX::XM_PI / 180;
 	}
-	void RotatePositional(const unsigned short x, const unsigned short y, const unsigned short z)
+	void RotatePositional(const short x, const short y, const short z)
 	{
 		PositionalRotateX = x * DirectX::XM_PI / 180;
 		PositionalRotateY = y * DirectX::XM_PI / 180;
@@ -117,6 +119,10 @@ public:
 		m_PositionX = DirectX::XMVectorGetX(pos);
 		m_PositionY = DirectX::XMVectorGetY(pos);
 		m_PositionZ = DirectX::XMVectorGetZ(pos);
+	}
+	void SetTransformation(DirectX::XMMATRIX mat)
+	{
+		transformation = mat;
 	}
 	void SetShaderConfig(Shader::ShaderConfiguration& config) noexcept
 	{

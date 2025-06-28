@@ -1,5 +1,6 @@
+#include "Common_Includes.hlsli"
 
-float4 main(float4 col : COLOR) : SV_TARGET
+float4 main(PixelShaderInput ps_inp) : SV_TARGET
 {
-    return col;
+    return float4(ps_inp.color.rgb * ps_inp.diffuse, 1.0);
 }

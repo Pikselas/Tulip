@@ -9,10 +9,6 @@ renderWindow(&mainWindow, 0, "", WS_CHILD, 5, 5, 800, 600),
 render_target(mainCanvas.Device.Get(), renderWindow.window_handle, 800, 600),
 depth_buffer(mainCanvas.Device.Get(), 800, 600),
 
-s_config(mainCanvas.Device.Get()),
-t_config(mainCanvas.Device.Get()),
-transformation_buffer(mainCanvas.Device.Get(), sizeof(DirectX::XMMATRIX)),
-
 rotXLabel(uiWindow, "rot-X", 10, 10, 30, 20),
 rotYLabel(uiWindow, "rot-Y", 10, 40, 30, 20),
 camXLabel(uiWindow, "X", 15, 70, 15, 20),
@@ -125,9 +121,6 @@ primitive(uiWindow, 80, 190, 100, 100)
 
 	mainCanvas.SetRenderTarget(render_target);
 	depth_buffer.Bind(mainCanvas.ImmediateContext.Get());
-	s_config.SetConstantBuffer(transformation_buffer);
-	t_config.SetConstantBuffer(transformation_buffer);
-	//s_config.BindToContext(mainCanvas.ImmediateContext.Get());
 }
 
 void KokodaiManager::Run(std::span<Object> objects)
@@ -159,7 +152,7 @@ void KokodaiManager::Run(std::span<Object> objects)
 		depth_buffer.Clear(mainCanvas.ImmediateContext.Get());
 
 		scene.Render(GetCanvas());
-		scene.Update();
+		scene.Update(elapsed);
 
 		render_target.RenderFrame();
 		mtx.unlock();

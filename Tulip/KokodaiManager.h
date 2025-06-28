@@ -33,10 +33,6 @@ private:
 	RenderTarget::Window render_target;
 	DepthBuffer depth_buffer;
 private:
-	ConstantBuffer transformation_buffer;
-	Shader::NonTexturedShaderConfig s_config;
-	Shader::TerrainShaderConfig t_config;
-private:
 	Label rotXLabel;
 	Label rotYLabel;
 	Label camXLabel;

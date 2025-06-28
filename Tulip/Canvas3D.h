@@ -42,7 +42,8 @@ private:
 	const float Halfheight;
 	const float Halfwidth;
 public:
-	void UpdateCbuff(ID3D11Buffer * CBuffer , DirectX::XMMATRIX transform_matrix) const;
+	template<typename T>
+	void UpdateCbuff(ID3D11Buffer * CBuffer , const T& buffer_data ) const;
 public:
 	Canvas3D();
 public:
@@ -51,3 +52,12 @@ public:
 	void DrawObject(const Object& obj , const ::Camera& camera);
 	void SetRenderTarget(RenderTarget::Target& target);
 };
+
+template<typename T>
+inline void Canvas3D::UpdateCbuff(ID3D11Buffer* CBuffer, const T& buffer_data) const
+{
+	D3D11_MAPPED_SUBRESOURCE ms;
+	ImmediateContext->Map(CBuffer, 0u, D3D11_MAP_WRITE_DISCARD, 0u, &ms);
+	std::memcpy(ms.pData, &buffer_data, sizeof(T));
+	ImmediateContext->Unmap(CBuffer, 0u);
+}

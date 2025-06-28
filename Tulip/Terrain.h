@@ -25,7 +25,7 @@ public:
         {
             for (int j = 0; j <= zSize; ++j)
             {
-                auto y = perlin.noise2D(i * .3f, j * .3f) * 2.0f;
+                auto y = perlin.noise2D(i * .2f, j * .2f) * 3.0f;
                 Vertices[i * (zSize + 1) + j] = { (float)i , (float)y , (float)j , (unsigned char)dis(gen) , (unsigned char)dis(gen) , (unsigned char)dis(gen)};
             }
         }
